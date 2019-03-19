@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import getBounds from "../lib/getBounds";
 import compose from "../lib/fns/compose";
+import DisplayTooltip from "./displayTooltip";
 
 const valueOf = event => parseInt(event.target.value);
 
@@ -13,6 +14,8 @@ function displayLines ({dataSets, enabled, colors}) {
   const x = dataSets.get('x');
   const [yMin, yMax] = getBounds(enabled.reduce((all, name) => all.concat(dataSets.get(name)), []));
   const timelineRef = React.createRef();
+
+  const [tooltip, setTooltip] = useState(null);
 
   const [rightBound, setRightBound] = useState(x.length);
   const [leftBound, setLeftBound] = useState(x.length-20);
@@ -34,23 +37,52 @@ function displayLines ({dataSets, enabled, colors}) {
     setWidth(parseInt(window.getComputedStyle(timelineRef.current).width));
   }, []);
 
+
+  const showDots = e => {
+    const {
+      clientX,
+    } = e;
+//    debugger;
+    const xCursor  = x.slice(leftBound, rightBound + 1);
+    const xStep = width / xCursor.length;
+    const position = parseInt(clientX / xStep);
+    const positionName = xCursor[position];
+    const height= yMax - yMin;
+
+    setTooltip({
+      height,
+      x: position * xStep,
+      xLabel: positionName,
+      dots: cursor.map(([name, stroke, y]) => [name, stroke, yMax - y[position] ])
+    });
+//    debugger;
+//    console.log(e.target);
+  };
+
+  const cursor = enabled.map(name => {
+    const y = dataSets.get(name).slice(leftBound, rightBound + 1);
+    const stroke = colors[name];
+    const pathBuilder = getPathBuilder(width / y.length, yMin, yMax);
+
+    return [name, stroke, y, pathBuilder(y)];
+  });
+
   return (
     <div className="chart-view">
-      <div className="large-view">
+      <div className="large-view" onMouseMove={showDots}>
         {
           width && enabled.length > 0 && (
             <svg viewBox={`0 0 ${width} ${yMax - yMin}`} preserveAspectRatio="none">
               {
-                enabled.map(name => {
+                cursor.map(([name, stroke, y, d]) => {
 //                  const y = dataSets.get(name).slice(leftBound).slice(0, rightBound-leftBound);
-                  const y = dataSets.get(name).slice(leftBound, rightBound + 1);
-                  const stroke = colors[name];
-                  const pathBuilder = getPathBuilder(width / y.length, yMin, yMax);
                   return (
-                    <path key={name} d={pathBuilder(y)} fill="none" strokeWidth={2} stroke={stroke}/>
+                    <path key={name} d={d} fill="none" strokeWidth={2} stroke={stroke}/>
                   )
                 })
               }
+
+              { tooltip && <DisplayTooltip {...tooltip} />}
             </svg>
           )
         }
