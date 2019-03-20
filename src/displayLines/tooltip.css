@@ -1,0 +1,33 @@
+.tooltip {
+    display: inline-block;
+    padding: .5rem;
+    border-radius: 5px;
+    box-shadow: silver 0 0 2px 1px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: 500ms;
+    background-color: var(--background-color);
+}
+
+.tooltip h1 {
+    padding: 0;
+    margin: 0;
+}
+
+.tooltip-values {
+
+    display: flex;
+    text-align: left;
+}
+
+.tooltip-values > div {
+    margin: 0 .5em;
+    font-weight: bold;
+    font-size: 130%;
+}
+
+.tooltip small {
+    display: block;
+    font-weight: lighter;
+}
