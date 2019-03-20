@@ -4,7 +4,8 @@ import React, {
 } from 'react';
 import getBounds from "../lib/getBounds";
 import compose from "../lib/fns/compose";
-import DisplayTooltip from "./displayTooltip";
+import DisplayHoverAbscissa from "./displayHoverAbscissa";
+import Tooltip from './tooltip';
 
 const valueOf = event => parseInt(event.target.value);
 
@@ -18,7 +19,7 @@ function displayLines ({dataSets, enabled, colors}) {
   const [tooltip, setTooltip] = useState(null);
 
   const [rightBound, setRightBound] = useState(x.length);
-  const [leftBound, setLeftBound] = useState(x.length-20);
+  const [leftBound, setLeftBound] = useState(x.length - 20);
 
   const [width, setWidth] = useState(undefined);
 
@@ -37,26 +38,23 @@ function displayLines ({dataSets, enabled, colors}) {
     setWidth(parseInt(window.getComputedStyle(timelineRef.current).width));
   }, []);
 
-
   const showDots = e => {
     const {
       clientX,
     } = e;
-//    debugger;
-    const xCursor  = x.slice(leftBound, rightBound + 1);
+    const xCursor = x.slice(leftBound, rightBound + 1);
     const xStep = width / xCursor.length;
     const position = parseInt(clientX / xStep);
     const positionName = xCursor[position];
-    const height= yMax - yMin;
+    const height = yMax - yMin;
 
     setTooltip({
       height,
-      x: position * xStep,
+      clientX,
+      x:      position * xStep,
       xLabel: positionName,
-      dots: cursor.map(([name, stroke, y]) => [name, stroke, yMax - y[position] ])
+      dots:   cursor.map(([name, stroke, y]) => [name, stroke, yMax - y[position]]),
     });
-//    debugger;
-//    console.log(e.target);
   };
 
   const cursor = enabled.map(name => {
@@ -70,6 +68,8 @@ function displayLines ({dataSets, enabled, colors}) {
   return (
     <div className="chart-view">
       <div className="large-view" onMouseMove={showDots}>
+        <Tooltip {...tooltip} />
+
         {
           width && enabled.length > 0 && (
             <svg viewBox={`0 0 ${width} ${yMax - yMin}`} preserveAspectRatio="none">
@@ -82,16 +82,19 @@ function displayLines ({dataSets, enabled, colors}) {
                 })
               }
 
-              { tooltip && <DisplayTooltip {...tooltip} />}
+              {tooltip && <DisplayHoverAbscissa {...tooltip} />}
             </svg>
           )
         }
       </div>
 
       <div className="timeline-view" ref={timelineRef}>
-        <input type="range" name="leftBound" min={0} max={-10 + rightBound} value={leftBound} onChange={onChangeLeftBound}/>
-        <input type="range" name="cursor" min={0} max={x.length - (rightBound - leftBound)} value={leftBound} onChange={onChangeCursor} />
-        <input type="range" name="rightBound" min={10+leftBound} max={x.length} value={rightBound} onChange={onChangeRightBound}/>
+        <input type="range" name="leftBound" min={0} max={-10 + rightBound} value={leftBound}
+               onChange={onChangeLeftBound}/>
+        <input type="range" name="cursor" min={0} max={x.length - (rightBound - leftBound)} value={leftBound}
+               onChange={onChangeCursor}/>
+        <input type="range" name="rightBound" min={10 + leftBound} max={x.length} value={rightBound}
+               onChange={onChangeRightBound}/>
         {
           width && enabled.length > 0 && (
             <svg viewBox={`0 0 ${width} ${yMax - yMin}`} preserveAspectRatio="none">
