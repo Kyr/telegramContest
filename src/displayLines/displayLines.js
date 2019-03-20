@@ -42,7 +42,6 @@ function displayLines ({dataSets, enabled, colors}) {
     const {
       clientX,
     } = e;
-//    debugger;
     const xCursor = x.slice(leftBound, rightBound + 1);
     const xStep = width / xCursor.length;
     const position = parseInt(clientX / xStep);
@@ -56,8 +55,6 @@ function displayLines ({dataSets, enabled, colors}) {
       xLabel: positionName,
       dots:   cursor.map(([name, stroke, y]) => [name, stroke, yMax - y[position]]),
     });
-//    debugger;
-//    console.log(e.target);
   };
 
   const cursor = enabled.map(name => {
