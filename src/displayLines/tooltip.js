@@ -1,6 +1,6 @@
-import formatDate from "lib/formatDate";
 import React from "react";
 import './tooltip.css';
+import formatDate from "../lib/formatDate";
 import map from '../lib/fns/map';
 
 export default tooltip;

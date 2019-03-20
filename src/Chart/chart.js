@@ -12,7 +12,7 @@ export default chart;
 function chart ({accessor, active}) {
   const [chart, setChart] = useState(accessor());
 
-  const {columns, names, types, colors} = chart;
+  const {columns, names, /*types, */colors} = chart;
 
   const [enabled, changeEnabled] = useState(Object.keys(names));
 

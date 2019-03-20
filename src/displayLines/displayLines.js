@@ -130,7 +130,7 @@ function getPathBuilder (xStep, yMin, yMax) {
     const {d} = rest.reduce(({base, d}, y) => {
       return {
         base: y,
-        d:    d + ' ' + `l ${xStep},${base - y}`,
+        d:    `${d} l ${xStep},${base - y}`,
       }
     }, {base, d: `M 0,${yMax - base}`});
 

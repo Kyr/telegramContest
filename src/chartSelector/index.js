@@ -1,5 +1,5 @@
 import React from "react";
-import compose from "lib/fns/compose";
+import compose from "../lib/fns/compose";
 
 const itemRender = props => <button {...props}/>;
 
