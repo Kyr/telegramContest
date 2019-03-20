@@ -38,7 +38,7 @@ function displayLines ({dataSets, enabled, colors}) {
     setWidth(parseInt(window.getComputedStyle(timelineRef.current).width));
   }, []);
 
-  const showDots = e => {
+  const showTooltip = e => {
     const {
       clientX,
     } = e;
@@ -65,27 +65,34 @@ function displayLines ({dataSets, enabled, colors}) {
     return [name, stroke, y, pathBuilder(y)];
   });
 
+  function hideTooltip (e) {
+//    setTooltip(null)
+  }
+
   return (
     <div className="chart-view">
-      <div className="large-view" onMouseMove={showDots}>
-        <Tooltip {...tooltip} />
+      <div className="large-view" onMouseMove={showTooltip} onMouseOut={hideTooltip}>
+        <div className="chart-container">
+          <Tooltip {...tooltip} />
 
-        {
-          width && enabled.length > 0 && (
-            <svg viewBox={`0 0 ${width} ${yMax - yMin}`} preserveAspectRatio="none">
-              {
-                cursor.map(([name, stroke, y, d]) => {
+          {
+            width && enabled.length > 0 && (
+              <svg viewBox={`0 0 ${width} ${yMax - yMin}`} preserveAspectRatio="none">
+                {
+                  cursor.map(([name, stroke, y, d]) => {
 //                  const y = dataSets.get(name).slice(leftBound).slice(0, rightBound-leftBound);
-                  return (
-                    <path key={name} d={d} fill="none" strokeWidth={2} stroke={stroke}/>
-                  )
-                })
-              }
+                    return (
+                      <path key={name} d={d} fill="none" strokeWidth={2} stroke={stroke}/>
+                    )
+                  })
+                }
+                <path d={`M 0,${yMax - 15} H${width}`} stroke="silver"/>
 
-              {tooltip && <DisplayHoverAbscissa {...tooltip} />}
-            </svg>
-          )
-        }
+                {tooltip && <DisplayHoverAbscissa {...tooltip} />}
+              </svg>
+            )
+          }
+        </div>
       </div>
 
       <div className="timeline-view" ref={timelineRef}>

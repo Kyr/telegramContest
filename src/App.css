@@ -22,9 +22,10 @@ body {
     position: relative;
     width: 100%;
     margin: 1rem 0;
+    overflow-x: auto;
 }
 
-.large-view svg {
+.chart-container svg {
     position: absolute;
     top: 0;
     left: 0;
