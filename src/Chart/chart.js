@@ -4,6 +4,7 @@ import React, {
 } from "react";
 import LineNames from "../LineNames";
 import DisplayLines from '../displayLines';
+import './style.css';
 
 const createLinesMap = (valueMap, [name, ...values]) => valueMap.set(name, values);
 
@@ -28,7 +29,11 @@ function chart ({accessor, active}) {
   return (
     <>
       <DisplayLines dataSets={dataSets} enabled={enabled} colors={colors}/>
-      <LineNames colors={colors} enabled={enabled} names={names} onSwitch={changeEnabled}/>
+
+      <footer>
+
+        <LineNames colors={colors} enabled={enabled} names={names} onSwitch={changeEnabled}/>
+      </footer>
     </>
   );
 }

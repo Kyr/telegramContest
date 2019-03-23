@@ -14,9 +14,17 @@ function app ({data}) {
 
   return (
     <div className="App">
-      <ChartSelector chartNames={names} onChange={setActive}/>
+      <header>
+        <ChartSelector chartNames={names} onChange={setActive}/>
+      </header>
 
-      <Chart accessor={accessor} active={active}/>
+      <main>
+        <Chart accessor={accessor} active={active}/>
+      </main>
+
+      <footer>
+        Switch theme
+      </footer>
     </div>
   )
 }
