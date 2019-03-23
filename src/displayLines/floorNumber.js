@@ -8,8 +8,14 @@ function floorNumber (_number_, add = 0) {
     return 0;
   }
 
-  const divider = Math.pow(10, (n.length - 1));
-  const number = Math.trunc(_number_ / divider);
+  if(n.length === 2) {
+    return (Math.round(_number_ / 10) + add) * 10;
+
+  }
+
+
+  const divider = Math.pow(10, (Math.min(1, n.length - 2)));
+  const number = Math.round(_number_ / divider);
 
   return (number + add) * divider;
 }

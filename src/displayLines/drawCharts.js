@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import createPathBuilder from "./createPathBuilder";
 import getBounds from "../lib/getBounds";
-import floorNumber from "./prettyfy";
+import floorNumber from "./floorNumber";
 
 export default DrawCharts;
 
@@ -9,7 +9,7 @@ const fontSize = 15;
 const gutter = 2;
 
 function DrawCharts ({children, width, height, getX, getOrdinates, leftBound, rightBound}) {
-  if (width === 0) return null;
+  if (!width) return null;
 
   const ordinates = getOrdinates(leftBound, rightBound);
 
@@ -17,9 +17,47 @@ function DrawCharts ({children, width, height, getX, getOrdinates, leftBound, ri
 
   const [yMin, yMax] = getBounds(ordinates.reduce((all, [name, , y]) => all.concat(y), []));
 
-  //const bottomBound = floorNumber(yMin);
 
+  let topBound = floorNumber(yMax, 1) + fontSize;
+
+  const bottomBound = floorNumber(yMin);
+  const yDelta = topBound - bottomBound;
+
+  const step  = floorNumber(yDelta / 5);
+  const ordinatesAxis = new Array(6).fill(null).map(
+    (_, index) => bottomBound + step * index
+  );
+
+/*
+  if(topBound - ordinatesAxis[ordinatesAxis.length-1] > 0.5 * step) {
+    debugger
+    ordinatesAxis.push(ordinatesAxis[ordinatesAxis.length-1] + step);
+  }
+*/
+
+  topBound = ordinatesAxis[ordinatesAxis.length-1];
+
+  const ordinatesLabels = ordinatesAxis.map(ordinate => [ordinate, Math.round((1 - (ordinate - bottomBound) / yDelta) * (height))]);
+
+/*
   const [bottomBound, topBound] = getSteps(yMin, yMax);
+
+  const yDelta = topBound -  bottomBound;
+  const yStep = floorNumber(0.2 * yDelta);
+
+  let ordinatesAxis = [bottomBound];
+
+  while (ordinatesAxis[ordinatesAxis.length - 1] + yStep <= topBound) {
+    ordinatesAxis.push(ordinatesAxis[ordinatesAxis.length-1] + yStep);
+  }
+
+  const ordinatesLabels = ordinatesAxis.map(ordinate => {
+    return [ordinate, (1 - (ordinate - bottomBound) / yDelta) * height];
+  });
+
+*/
+  //
+
 //  const topBound = floorNumber(yMax, 1);
 //  const times = Math.max(2, Math.trunc(yMax / bottomBound));
 
@@ -63,14 +101,14 @@ function DrawCharts ({children, width, height, getX, getOrdinates, leftBound, ri
 
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" >
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{border: '1px solid silver'}}>
 {/*
       <Tooltip {...tooltip} />
 */}
       {/*
       <Axises {...{width, height, yMin, yMax, leftBound, rightBound}} />
 */}
-<g>
+<g y={fontSize} style={{border: '1px solid silver'}}>
       {
         ordinates.map(([name, stroke, y]) => {
 //                  const y = dataSets.get(name).slice(leftBound).slice(0, rightBound-leftBound);
@@ -79,16 +117,23 @@ function DrawCharts ({children, width, height, getX, getOrdinates, leftBound, ri
           )
         })
       }
+      {
+  ordinatesLabels.map(([label, ordinate]) => (
+    <>
+      <text x={15} y={ordinate - gutter} fontSize={fontSize}>{label}</text>
+      <path d={`M 0,${ordinate} H${width}`} stroke="silver"/>
+    </>
+  ))
+}
+
 </g>
 
-      <text x={15} y={fontSize} fontSize={fontSize}>{yMax}</text>
-      <text x={115} y={fontSize} fontSize={fontSize}>{topBound}</text>
+      {/*<text x={15} y={fontSize} fontSize={fontSize}>{yMax}</text>*/}
+      {/*<text x={115} y={fontSize} fontSize={fontSize}>{topBound}</text>*/}
 
       {/*<path d={`M 0,${height} H${width}`} stroke="silver"/>*/}
-      <text x={15} y={height - fontSize - gutter} fontSize={fontSize}>{yMin}</text>
-      <text x={115} y={height - fontSize - gutter} fontSize={fontSize}>{bottomBound}</text>
+      {/*<text x={115} y={height - fontSize - gutter} fontSize={fontSize}>{bottomBound}</text>*/}
 
-      <path d={`M 0,${height-fontSize} H${width}`} stroke="silver"/>
 
       <text x={50} y={height} fontSize={fontSize}>{leftBound} {rightBound} </text>
 
