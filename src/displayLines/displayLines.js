@@ -53,6 +53,14 @@ function displayLines ({dataSets, enabled, colors}) {
     setChartHeight(parseInt(chartContainerStyle.height));
   }, []);
 
+  const cursor = enabled.map(name => {
+    const y = dataSets.get(name).slice(leftBound, rightBound + 1);
+    const stroke = colors[name];
+    const pathBuilder = getPathBuilder(width / y.length, yMin, yMax, height / (yMax - yMin));
+
+    return [name, stroke, y, pathBuilder(y)];
+  });
+
   const showTooltip = e => {
     const {
       clientX,
@@ -64,21 +72,13 @@ function displayLines ({dataSets, enabled, colors}) {
     const height = yMax - yMin;
 
     setTooltip({
-      height,
+      height: chartHeight,
       clientX,
       x:      position * xStep,
       xLabel: positionName,
       dots:   cursor.map(([name, stroke, y]) => [name, stroke, yMax - y[position]]),
     });
   };
-
-  const cursor = enabled.map(name => {
-    const y = dataSets.get(name).slice(leftBound, rightBound + 1);
-    const stroke = colors[name];
-    const pathBuilder = getPathBuilder(width / y.length, yMin, yMax, height / (yMax - yMin));
-
-    return [name, stroke, y, pathBuilder(y)];
-  });
 
   function hideTooltip (e) {
     setTooltip(null);
@@ -99,17 +99,21 @@ function displayLines ({dataSets, enabled, colors}) {
 
   const timelinePath = createPathBuilder(yMin, yMax, x.length, height, width);
 
+//  debugger
   return (
     <div className="chart-view">
       <div className="large-view"  ref={chartRef} onMouseMove={showTooltip} onMouseOut={hideTooltip}>
         {/*<div className="chart-container">*/}
+          <Tooltip {...tooltip} />
 
           <DrawCharts
             {...{width, height: chartHeight, leftBound, rightBound, getX, getOrdinates}}
-          />
+          >
+              {tooltip && <DisplayHoverAbscissa {...tooltip} />}
+          </DrawCharts>
 
           {/*
-          <Tooltip {...tooltip} />
+
 
           {
             width && enabled.length > 0 && (
@@ -118,6 +122,7 @@ function displayLines ({dataSets, enabled, colors}) {
             )
           }
 */}
+
         {/*</div>*/}
       </div>
 
@@ -157,7 +162,7 @@ function displayLines ({dataSets, enabled, colors}) {
 }
 
 function getPathBuilder (xStep, yMin, yMax, yScale = 1) {
-  console.log(xStep, yMin, yMax, yScale);
+//  console.log(xStep, yMin, yMax, yScale);
   return pathBuilder;
 
   /**

@@ -14,7 +14,7 @@ function app ({data}) {
 
   return (
     <div className="App">
-      <header>
+      <header onClick={() => console.log('header click')}>
         <ChartSelector chartNames={names} onChange={setActive}/>
       </header>
 
