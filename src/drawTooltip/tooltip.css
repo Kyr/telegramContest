@@ -1,3 +1,4 @@
+
 .tooltip {
     display: inline-block;
     padding: .5rem;
@@ -8,6 +9,9 @@
     left: 0;
     transition: 500ms;
     background-color: var(--background-color);
+}
+.tooltip-container svg {
+    z-index: 2;
 }
 
 .tooltip h1 {

@@ -4,13 +4,13 @@ import React, {
 } from 'react';
 import getBounds from "../lib/getBounds";
 import compose from "../lib/fns/compose";
-import DisplayHoverAbscissa from "./displayHoverAbscissa";
-import Tooltip from './tooltip';
-import Axises from './axises';
+//import DisplayHoverAbscissa from "./displayHoverAbscissa";
+import DrawTooltip from '../drawTooltip';
+//import Axises from './axises';
 import DrawCharts from './drawCharts';
 import createPathBuilder from "./createPathBuilder";
 
-;
+
 
 const valueOf = event => parseInt(event.target.value);
 
@@ -24,7 +24,7 @@ function displayLines ({dataSets, enabled, colors}) {
   const timelineRef = React.createRef();
   const chartRef = React.createRef();
 
-  const [tooltip, setTooltip] = useState(null);
+
 
   const [rightBound, setRightBound] = useState(x.length);
   const [leftBound, setLeftBound] = useState(x.length - 20);
@@ -33,7 +33,7 @@ function displayLines ({dataSets, enabled, colors}) {
   const [height, setHeight] = useState(undefined);
   const [chartHeight, setChartHeight] = useState(undefined);
 
-  const pathBuilder = getPathBuilder(width / x.length, yMin, yMax, 100 / (yMax - yMin));
+//  const pathBuilder = getPathBuilder(width / x.length, yMin, yMax, 100 / (yMax - yMin));
 
   const onChangeRightBound = compose(setRightBound, valueOf);
   const onChangeLeftBound = compose(setLeftBound, valueOf);
@@ -53,36 +53,7 @@ function displayLines ({dataSets, enabled, colors}) {
     setChartHeight(parseInt(chartContainerStyle.height));
   }, []);
 
-  const cursor = enabled.map(name => {
-    const y = dataSets.get(name).slice(leftBound, rightBound + 1);
-    const stroke = colors[name];
-    const pathBuilder = getPathBuilder(width / y.length, yMin, yMax, height / (yMax - yMin));
 
-    return [name, stroke, y, pathBuilder(y)];
-  });
-
-  const showTooltip = e => {
-    const {
-      clientX,
-    } = e;
-    const xCursor = x.slice(leftBound, rightBound + 1);
-    const xStep = width / xCursor.length;
-    const position = parseInt(clientX / xStep);
-    const positionName = xCursor[position];
-    const height = yMax - yMin;
-
-    setTooltip({
-      height: chartHeight,
-      clientX,
-      x:      position * xStep,
-      xLabel: positionName,
-      dots:   cursor.map(([name, stroke, y]) => [name, stroke, yMax - y[position]]),
-    });
-  };
-
-  function hideTooltip (e) {
-    setTooltip(null);
-  }
 
   function getX(leftBound, rightBound) {
     return x.slice(leftBound, rightBound + 1);
@@ -102,15 +73,16 @@ function displayLines ({dataSets, enabled, colors}) {
 //  debugger
   return (
     <div className="chart-view">
-      <div className="large-view"  ref={chartRef} onMouseMove={showTooltip} onMouseOut={hideTooltip}>
+      <div className="large-view"  ref={chartRef} >
         {/*<div className="chart-container">*/}
-          <Tooltip {...tooltip} />
+        <DrawTooltip
+          {...{width, height: chartHeight, leftBound, rightBound, getX, getOrdinates}}
+        />
 
-          <DrawCharts
+        <DrawCharts
             {...{width, height: chartHeight, leftBound, rightBound, getX, getOrdinates}}
-          >
-              {tooltip && <DisplayHoverAbscissa {...tooltip} />}
-          </DrawCharts>
+          />
+
 
           {/*
 
