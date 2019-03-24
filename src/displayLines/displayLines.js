@@ -3,16 +3,14 @@ import React, {
   useState,
 } from 'react';
 import getBounds from "../lib/getBounds";
-import compose from "../lib/fns/compose";
+
 //import DisplayHoverAbscissa from "./displayHoverAbscissa";
 import DrawTooltip from '../drawTooltip';
 //import Axises from './axises';
 import DrawCharts from './drawCharts';
 import createPathBuilder from "./createPathBuilder";
-
-
-
-const valueOf = event => parseInt(event.target.value);
+import Timeline from "../Timeline/Timeline";
+import Abscissa from './abscissa';
 
 export default displayLines;
 
@@ -21,13 +19,10 @@ function displayLines ({dataSets, enabled, colors}) {
 //  const xMin = x[0];
 //  const xMax = x[x.length-1];
   const [yMin, yMax] = getBounds(enabled.reduce((all, name) => all.concat(dataSets.get(name)), []));
-  const timelineRef = React.createRef();
   const chartRef = React.createRef();
 
-
-
+  const [leftBound, setLeftBound] = useState(Math.round((x.length)* 0.8));
   const [rightBound, setRightBound] = useState(x.length);
-  const [leftBound, setLeftBound] = useState(x.length - 20);
 
   const [width, setWidth] = useState(undefined);
   const [height, setHeight] = useState(undefined);
@@ -35,31 +30,22 @@ function displayLines ({dataSets, enabled, colors}) {
 
 //  const pathBuilder = getPathBuilder(width / x.length, yMin, yMax, 100 / (yMax - yMin));
 
-  const onChangeRightBound = compose(setRightBound, valueOf);
-  const onChangeLeftBound = compose(setLeftBound, valueOf);
-  const onChangeCursor = e => {
-    const value = valueOf(e);
-//console.log('change cursor', value)
-    setLeftBound(value);
-    setRightBound(value + rightBound - leftBound);
-  };
 
   useLayoutEffect(() => {
-    const timelineContainerStyle = window.getComputedStyle(timelineRef.current);
+//    const timelineContainerStyle = window.getComputedStyle(timelineRef.current);
     const chartContainerStyle = window.getComputedStyle(chartRef.current);
 
-    setWidth(parseInt(timelineContainerStyle.width));
-    setHeight(parseInt(timelineContainerStyle.height));
+    setWidth(parseInt(chartContainerStyle.width));
+    setHeight(parseInt(chartContainerStyle.height));
     setChartHeight(parseInt(chartContainerStyle.height));
   }, []);
 
+  function getX (leftBound = 0, rightBound = x.length - 1) {
 
-
-  function getX(leftBound, rightBound) {
     return x.slice(leftBound, rightBound + 1);
   }
 
-  function getOrdinates(leftBound, rightBound) {
+  function getOrdinates (leftBound = 0, rightBound = x.length - 1) {
     return enabled.map(name => {
       const y = dataSets.get(name).slice(leftBound, rightBound + 1);
       const stroke = colors[name];
@@ -68,67 +54,28 @@ function displayLines ({dataSets, enabled, colors}) {
     })
   }
 
-  const timelinePath = createPathBuilder(yMin, yMax, x.length, height, width);
+  const timelinePath = createPathBuilder(yMin, yMax, x.length, 100, width);
 
 //  debugger
   return (
     <div className="chart-view">
-      <div className="large-view"  ref={chartRef} >
+      <div className="large-view" ref={chartRef}>
         {/*<div className="chart-container">*/}
         <DrawTooltip
           {...{width, height: chartHeight, leftBound, rightBound, getX, getOrdinates}}
         />
 
         <DrawCharts
-            {...{width, height: chartHeight, leftBound, rightBound, getX, getOrdinates}}
-          />
+          {...{width, height: chartHeight, leftBound, rightBound, getX, getOrdinates}}
+        />
 
 
-          {/*
 
-
-          {
-            width && enabled.length > 0 && (
-              <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none"></svg>
-
-            )
-          }
-*/}
-
-        {/*</div>*/}
       </div>
 
-      <div className="timeline-view" ref={timelineRef}>
-        {/*
-          TODO: https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
-        */}
-        <input type="range" name="leftBound" min={0} max={-10 + rightBound} value={leftBound}
-               onChange={onChangeLeftBound}
-               style={{width: `${leftBound / x.length * 100}%`}}/>
+      <Abscissa {...{leftBound, rightBound, getX, width}} />
+      <Timeline {...{timelinePath, width, getX, getOrdinates, enabled, setRightBound, setLeftBound, rightBound, leftBound}}/>
 
-        <input type="range" name="cursor" min={0} max={x.length - (rightBound - leftBound)} value={leftBound}
-               onChange={onChangeCursor}
-               style={{width: `${100 * (rightBound - leftBound) / x.length}%`}}/>
-        <input type="range" name="rightBound" min={10 + leftBound} max={x.length} value={rightBound}
-               onChange={onChangeRightBound}
-               style={{width: `${100 * (x.length - leftBound) / x.length}%`}}/>
-        {
-          width && enabled.length > 0 && (
-            <svg viewBox={`0 0 ${width} ${100}`} preserveAspectRatio="none">
-              {
-                enabled.map(name => {
-                  const y = dataSets.get(name);
-                  const stroke = colors[name];
-
-                  return (
-                    <path key={name} d={timelinePath(y)} fill="none" stroke={stroke}/>
-                  )
-                })
-              }
-            </svg>
-          )
-        }
-      </div>
     </div>
   )
 }

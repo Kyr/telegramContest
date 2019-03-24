@@ -139,7 +139,7 @@ export default class DrawCharts extends PureComponent {
         {/*<text x={115} y={height - fontSize - gutter} fontSize={fontSize}>{bottomBound}</text>*/}
 
 
-        <text x={50} y={height} fontSize={fontSize}>{leftBound} {rightBound} </text>
+
 
 
 
